@@ -22,7 +22,7 @@ for inputFile in `find . -type f \( -iname "*.md" \)`; do
 	fullName="${strippedName#./}.html"
 	shortName=${strippedName##*/}
 	touch $fullName
-	echo $fullName
+	echo $fullName	
 	# Head
 	cat >> "$fullName" << HEAD
 <!DOCTYPE html>
