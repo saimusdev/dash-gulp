@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<title>running-tasks-in-series</title>
+    <meta charset="utf-8">
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<h1>Running tasks in series</h1>
+
+<p>By default, tasks run with maximum concurrency -- e.g. it launches all the tasks at once and waits for nothing.
+If you want to create a series where tasks run in a particular order, you need to do two things:</p>
+
+<ul>
+<li>give it a hint to tell it when the task is done,</li>
+<li>and give it a hint that a task depends on completion of another.</li>
+</ul>
+
+<p>For these examples, let's presume you have two tasks, "one" and "two" that you specifically want to run in this order:</p>
+
+<ol>
+<li><p>In task "one" you add a hint to tell it when the task is done.  Either take in a callback and call it when you're
+done or return a promise or stream that the engine should wait to resolve or end respectively.</p></li>
+<li><p>In task "two" you add a hint telling the engine that it depends on completion of the first task.</p></li>
+</ol>
+
+<p>So this example would look like this:</p>
+
+<p>```javascript
+var gulp = require('gulp');</p>
+
+<p>// takes in a callback so the engine knows when it'll be done
+gulp.task('one', function(cb) {
+    // do stuff -- async or otherwise
+    cb(err); // if err is not null and not undefined, the orchestration will stop, and 'two' will not run
+});</p>
+
+<p>// identifies a dependent task must be complete before this one begins
+gulp.task('two', ['one'], function() {
+    // task 'one' is done now
+});</p>
+
+<p>gulp.task('default', ['one', 'two']);
+// alternatively: gulp.task('default', ['two']);
+```</p>
+</body>
+</html>

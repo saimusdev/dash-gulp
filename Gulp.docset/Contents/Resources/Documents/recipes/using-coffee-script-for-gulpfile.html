@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<title>using-coffee-script-for-gulpfile</title>
+    <meta charset="utf-8">
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<h1>Using coffee-script for gulpfile</h1>
+
+<p>As discussed in <a href="https://github.com/gulpjs/gulp/issues/103">issue #103</a>, there are 2 ways to do this.</p>
+
+<ol>
+<li><p>Use <code>gulp --require coffee-script/register</code> at the command line</p></li>
+<li><p>Require in <code>gulpfile.coffee</code> after requiring <code>coffee-script</code> in <code>gulpfile.js</code></p></li>
+</ol>
+
+<p><code>gulpfile.js</code></p>
+
+<p><code>js
+require('coffee-script/register');
+require('./gulpfile.coffee');
+</code></p>
+
+<p><code>gulpfile.coffee</code></p>
+
+<p>```coffeescript
+gulp = require 'gulp'</p>
+
+<p>gulp.task 'default', ->
+  console.log('default task called')
+```</p>
+
+<p>Others options are <a href="https://github.com/minibikini/coffeegulp">coffeegulp</a>, or <a href="https://github.com/typicode/cult">cult</a>.</p>
+</body>
+</html>

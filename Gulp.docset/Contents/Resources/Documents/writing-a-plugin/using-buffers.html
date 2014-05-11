@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<title>using-buffers</title>
+    <meta charset="utf-8">
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<h1>Using buffers</h1>
+
+<blockquote>
+  <p>Here is some information on creating gulp plugin that manipulates buffers.</p>
+</blockquote>
+
+<p><a href="README.md">Writing a Plugin</a> > Using buffers</p>
+
+<h2>Using buffers</h2>
+
+<p>If your plugin is relying on a buffer based library, you will probably choose to base your plugin around file.contents as a buffer. Let's implement a plugin prepending some text to files:</p>
+
+<p>```js
+var through = require('through2');
+var gutil = require('gulp-util');
+var PluginError = gutil.PluginError;</p>
+
+<p>// Consts
+const PLUGIN_NAME = 'gulp-prefixer';</p>
+
+<p>// Plugin level function(dealing with files)
+function gulpPrefixer(prefixText) {</p>
+
+<p>if (!prefixText) {
+    throw new PluginError(PLUGIN_NAME, "Missing prefix text!");
+  }
+  prefixText = new Buffer(prefixText); // allocate ahead of time</p>
+
+<p>// Creating a stream through which each file will pass
+  var stream = through.obj(function(file, enc, callback) {
+    if (file.isNull()) {
+      this.push(file); // Do nothing if no contents
+      return callback();
+    }</p>
+
+<pre><code>if (file.isBuffer()) {
+  file.contents = Buffer.concat([prefixText, file.contents]);
+  this.push(file);
+  return callback();
+}
+
+if (file.isStream()) {
+  this.emit('error', new PluginError(PLUGIN_NAME, 'Streams are not supported!'));
+  return callback();
+}
+</code></pre>
+
+<p>});</p>
+
+<p>// returning the file stream
+  return stream;
+};</p>
+
+<p>// Exporting the plugin main function
+module.exports = gulpPrefixer;
+```
+The above plugin can be used like this:</p>
+
+<p>```js
+var gulp = require('gulp');
+var gulpPrefixer = require('gulp-prefixer');</p>
+
+<p>gulp.src('files/<em>*/</em>.js')
+  .pipe(gulpPrefixer('prepended string'))
+  .pipe(gulp.dest('/modified-files/'));
+```</p>
+
+<h2>Handling streams</h2>
+
+<p>Unfortunately, the above plugin will error when using gulp.src in non-buffered (streaming) mode. You should support streams too if possible. See <a href="dealing-with-streams.md">Dealing with streams</a> for more information.</p>
+
+<h2> Some plugins based on buffers</h2>
+
+<ul>
+<li><a href="https://github.com/wearefractal/gulp-coffee">gulp-coffee</a></li>
+<li><a href="https://github.com/ben-eb/gulp-svgmin">gulp-svgmin</a></li>
+<li><a href="https://github.com/lmtm/gulp-marked">gulp-marked</a></li>
+<li><a href="https://github.com/nfroidure/gulp-svg2ttf">gulp-svg2ttf</a></li>
+</ul>
+</body>
+</html>

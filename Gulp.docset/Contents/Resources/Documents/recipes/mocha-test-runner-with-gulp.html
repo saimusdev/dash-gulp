@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<title>mocha-test-runner-with-gulp</title>
+    <meta charset="utf-8">
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<h1>Mocha test-runner with gulp</h1>
+
+<h3>Passing shared module in all tests</h3>
+
+<p>```js
+var gulp = require('gulp');
+var mocha = require('gulp-mocha');</p>
+
+<p>gulp.task('default', function() {
+    return gulp.src(['test/test-*.js'], { read: false })
+        .pipe(mocha({
+            reporter: 'spec',
+            globals: {
+                should: require('should')
+            }
+        }));
+});
+```</p>
+
+<h3>Running mocha tests when files change</h3>
+
+<p>```js
+// npm install gulp gulp-mocha</p>
+
+<p>var gulp = require('gulp');
+var mocha = require('gulp-mocha');
+var gutil = require('gulp-util');</p>
+
+<p>gulp.task('mocha', function() {
+    return gulp.src(['test/*.js'], { read: false })
+        .pipe(mocha({ reporter: 'list' }))
+        .on('error', gutil.log);
+});
+gulp.task('watch-mocha', function() {
+    gulp.watch(['lib/<strong>', 'test/</strong>'], ['mocha']);
+});
+```</p>
+</body>
+</html>

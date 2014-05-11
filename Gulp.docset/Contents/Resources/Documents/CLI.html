@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<title>CLI</title>
+    <meta charset="utf-8">
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<h2>gulp CLI docs</h2>
+
+<h3>Flags</h3>
+
+<p>gulp has very few flags to know about. All other flags are for tasks to use if needed.</p>
+
+<ul>
+<li><code>-v</code> or <code>--version</code> will display the global and local gulp versions</li>
+<li><code>--require &lt;module path&gt;</code> will require a module before running the gulpfile. This is useful for transpilers but also has other applications. You can use multiple <code>--require</code> flags</li>
+<li><code>--gulpfile &lt;gulpfile path&gt;</code> manually set path of gulpfile. Useful if you have multiple gulpfiles. This will set the CWD to the gulpfile directory as well.</li>
+<li><code>--cwd &lt;dir path&gt;</code> manually set the CWD. The search for the gulpfile, as well as the relativity of all requires will be from here.</li>
+<li><code>-T</code> or <code>--tasks</code> will display the task dependency tree for the loaded gulpfile</li>
+<li><code>--color</code> will force gulp and gulp plugins to display colors even when no color support is detected</li>
+<li><code>--no-color</code> will force gulp and gulp plugins to not display colors even when color support is detected</li>
+</ul>
+
+<h3>Tasks</h3>
+
+<p>Tasks can be executed by running <code>gulp &lt;task&gt; &lt;othertask&gt;</code>. Just running <code>gulp</code> will execute the task you registered called <code>default</code>. If there is no <code>default</code> task gulp will error.</p>
+
+<h3>Compilers</h3>
+
+<p>You can use any language you want for your gulpfile. You will have to specify the language module name so the CLI can load it (and its associated extensions) before attempting to find your gulpfile. Make sure you have this module installed accessible by the folder you are running the CLI in.</p>
+
+<p>Example:</p>
+
+<p><code>
+gulp dosomething --require coffee-script/register
+</code></p>
+</body>
+</html>

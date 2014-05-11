@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<title>using-external-config-file</title>
+    <meta charset="utf-8">
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<h1>Using external config file</h1>
+
+<h2>bonus: keeping those tasks DRY</h2>
+
+<h2>bonus2: config.json can be used by another task runner, like <code>Grunt</code></h2>
+
+<hr />
+
+<p><code>config.json</code></p>
+
+<p><code>json
+{
+  "desktop" : {
+    "src" : [
+      "dev/desktop/js/**/*.js",
+      "!dev/desktop/js/vendor/**"
+    ],
+    "dest" : "build/desktop/js"
+  },
+  "mobile" : {
+    "src" : [
+      "dev/mobile/js/**/*.js",
+      "!dev/mobile/js/vendor/**"
+    ],
+    "dest" : "build/mobile/js"
+  }
+}
+</code></p>
+
+<hr />
+
+<p><code>gulpfile.js</code></p>
+
+<p>```js
+// npm install gulp gulp-uglify
+var gulp   = require('gulp');
+var uglify = require('gulp-uglify');
+var config = require('./config.json');</p>
+
+<p>function doStuff(cfg) {
+  return gulp.src(cfg.src)
+    .pipe(uglify())
+    .pipe(gulp.dest(cfg.dest));
+}</p>
+
+<p>gulp.task('dry', function() {
+  doStuff(config.desktop);
+  doStuff(config.mobile);
+});
+```</p>
+</body>
+</html>

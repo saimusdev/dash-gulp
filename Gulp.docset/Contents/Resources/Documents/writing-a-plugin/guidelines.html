@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<title>guidelines</title>
+    <meta charset="utf-8">
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<h1>Guidelines</h1>
+
+<blockquote>
+  <p>While these guidelines are totally optional, we <strong>HIGHLY</strong> recommend that everyone follows them. Nobody wants to use a bad plugin. These guidelines will actually help make your life easier by giving you assurance that your plugin fits well within gulp.</p>
+</blockquote>
+
+<p><a href="README.md">Writing a Plugin</a> > Guidelines</p>
+
+<ol>
+<li>Your plugin should not do something that can be done easily with an existing node module
+<ul>
+<li>For example: deleting a folder does not need to be a gulp plugin. Use a module like <code>rimraf</code> within a task instead.</li>
+<li>Wrapping every possible thing just for the sake of wrapping it will pollute the ecosystem with low quality plugins that don't make sense within the gulp paradigm.</li>
+<li>gulp plugins are for file-based operations! If you find yourself shoehorning a complex process into streams just make a normal node module instead.</li>
+<li>A good example of a gulp plugin would be something like gulp-coffee. The coffee-script module does not work with Vinyl out of the box, so we wrap it to add this functionality and abstract away pain points to make it work well within gulp.</li>
+</ul></li>
+<li>Your plugin should only do <strong>one thing</strong>, and do it well.
+<ul>
+<li>Avoid config options that make your plugin do completely different tasks</li>
+<li>For example: A JS minification plugin should not have an option that adds a header as well</li>
+</ul></li>
+<li>Your plugin shouldn't do things that other plugins are responsible for
+<ul>
+<li>It should not concat, <a href="https://github.com/wearefractal/gulp-concat">gulp-concat</a> does that</li>
+<li>It should not add headers, <a href="https://github.com/godaddy/gulp-header">gulp-header</a> does that</li>
+<li>It should not add footers, <a href="https://github.com/godaddy/gulp-footer">gulp-footer</a> does that</li>
+<li>If it's a common but optional use case, document that your plugin is often used with another plugin</li>
+<li>Make use of other plugins within your plugin! This reduces the amount of code you have to write and ensures a stable ecosystem.</li>
+</ul></li>
+<li>Your plugin <strong>must be tested</strong>
+<ul>
+<li>Testing a gulp plugin is easy, you don't even need gulp to test it</li>
+<li>Look at other plugins for examples</li>
+</ul></li>
+<li>Add <code>gulpplugin</code> as a keyword in your <code>package.json</code> so you show up on our search</li>
+<li>Do not throw errors inside a stream
+<ul>
+<li>Instead, you should emit it as an <strong>error</strong> event.</li>
+<li>If you encounter an error <strong>outside</strong> the stream, such as invalid configuration while creating the stream, you may throw it.</li>
+</ul></li>
+<li>Prefix any errors with the name of your plugin
+<ul>
+<li>For example: <code>gulp-replace: Cannot do regexp replace on a stream</code></li>
+<li>Use gulp-util's <a href="https://github.com/gulpjs/gulp-util#new-pluginerrorpluginname-message-options">PluginError</a> class to make this easy</li>
+</ul></li>
+<li>The type of <code>file.contents</code> should always be the same going out as it was when it came in
+<ul>
+<li>If file.contents is null (non-read) just ignore the file and pass it along</li>
+<li>If file.contents is a Stream and you don't support that just emit an error</li>
+<li>Do not buffer a stream to shoehorn your plugin to work with streams. This will cause horrible things to happen.</li>
+</ul></li>
+<li>Do not pass the <code>file</code> object downstream until you are done with it</li>
+<li>Use <a href="https://github.com/wearefractal/vinyl#clone"><code>file.clone()</code></a> when cloning a file or creating a new one based on a file. </li>
+<li>Use modules from our <a href="recommended-modules.md">recommended modules page</a> to make your life easier</li>
+<li>Do NOT require <code>gulp</code> as a dependency or peerDependency in your plugin
+<ul>
+<li>Using gulp to test or automate your plugin workflow is totally cool, just make sure you put it as a devDependency</li>
+<li>Requiring gulp as a dependency of your plugin means that anyone who installs your plugin is also installing a new gulp, and it's entire dependency tree.</li>
+<li>There is no reason you should be using gulp within your actual plugin code. If you find yourself doing this open an issue so we can help you out.</li>
+</ul></li>
+</ol>
+
+<h2>Why are these guidelines so strict?</h2>
+
+<p>gulp aims to be simple for users. By providing strict guidelines we are able to provide a consistent and high-quality ecosystem for everyone. While this does add a little more work and thought for plugin authors, it removes a lot of problems later down the road.</p>
+
+<h3>What happens if I don't follow them?</h3>
+
+<p>npm is open for everyone, and you are free to make whatever you want but these guidelines were prescribed for a reason. There are acceptances tests coming soon that will be integrated into the plugin search. If you fail to adhere to the plugin guidelines it will be publicly visible/sortable via a scoring system. People will always prefer to use plugins that match "the gulp way".</p>
+
+<h3>What does a good plugin look like?</h3>
+
+<p>```js
+// through2 is a thin wrapper around node transform streams
+var through = require('through2');
+var gutil = require('gulp-util');
+var PluginError = gutil.PluginError;</p>
+
+<p>// Consts
+const PLUGIN_NAME = 'gulp-prefixer';</p>
+
+<p>function prefixStream(prefixText) {
+  var stream = through();
+  stream.write(prefixText);
+  return stream;
+}</p>
+
+<p>// Plugin level function(dealing with files)
+function gulpPrefixer(prefixText) {</p>
+
+<p>if (!prefixText) {
+    throw new PluginError(PLUGIN_NAME, "Missing prefix text!");
+  }
+  prefixText = new Buffer(prefixText); // allocate ahead of time</p>
+
+<p>// Creating a stream through which each file will pass
+  var stream = through.obj(function(file, enc, callback) {
+    if (file.isNull()) {
+       // Do nothing if no contents
+    }
+    if (file.isBuffer()) {
+        file.contents = Buffer.concat([prefixText, file.contents]);
+    }</p>
+
+<pre><code>if (file.isStream()) {
+    file.contents = file.contents.pipe(prefixStream(prefixText));
+}
+
+this.push(file);
+return callback();
+</code></pre>
+
+<p>});</p>
+
+<p>// returning the file stream
+  return stream;
+};</p>
+
+<p>// Exporting the plugin main function
+module.exports = gulpPrefixer;
+```</p>
+</body>
+</html>
