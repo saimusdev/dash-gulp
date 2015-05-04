@@ -1,6 +1,6 @@
 #!/bin/bash --
 DOCSET_NAME="Gulp"
-DOCUMENTATION_SRC="https://github.com/gulpjs/gulp/"
+DOCUMENTATION_SRC="https://github.com/gulpjs/gulp.git"
 
 # CREATE THE DOCSET FOLDER...
 echo -e "$(tput setaf 2)--> Creating the folder structure$(tput sgr0)"
